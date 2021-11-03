@@ -10,8 +10,15 @@
 /// @return The execution status of the application. 0 means _success_.
 int main (int argc, char * argv[])
 {
-  /// The application returns _yes_ or _no_ depending on whether the file
-  /// passed as first argument  is a picture or not.
-  printf ("%s \n", isPicture (argv[1]) ? "yes" : "no");
+  /// The application scans arguments and prints them only if the file is
+  /// a picture.
+  for (int i=1 ; argv[i] ; i++ )
+  {
+    if (isPicture(argv[i]))
+    {
+      printf ("%s\n", argv[i]);
+    }
+  }
+
   return 0;
 }

@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(Grenier)
 
 add_executable(Grenier grenier.c main.c)
+set_property(TARGET Grenier PROPERTY C_STANDARD 99)
 
 find_path(MAGIC_INCLUDE_DIR magic.h)
 find_library(MAGIC_LIBRARY magic)
