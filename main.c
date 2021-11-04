@@ -11,13 +11,16 @@
 int main (int argc, char * argv[])
 {
   /// The application scans arguments and prints them only if the file is
-  /// a picture.
+  /// a picture. If an argument is a directory, the application scans its
+  /// contents and prints directory entries that are pictures.
   for (int i=1 ; argv[i] ; i++ )
   {
-    if (isPicture(argv[i]))
+    char ** pictures = findPictures(argv[i]);
+    for ( int j=0 ; pictures && pictures[j] ; j++ )
     {
-      printf ("%s\n", argv[i]);
+      printf ("%s\n", pictures[j]);
     }
+    freeList(pictures);
   }
 
   return 0;
