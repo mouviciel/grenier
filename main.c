@@ -20,7 +20,7 @@ int main (int argc, char * argv[])
     {
       printf ("%s\n", pictures[j]);
     }
-    freeList(pictures);
+    StringListFree(pictures);
   }
 
   return 0;
