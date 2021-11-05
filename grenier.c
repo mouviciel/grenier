@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
-#include <stdio.h> //DEBUGJBO
 
 
 /// Check if a file is a picture.
@@ -66,7 +65,9 @@ char ** findPictures (const char * foldername)
     }
     if ( isFolder( path ) )
     {
-      printf("DEBUGJBO: folder: %s/\n",path);
+      char ** picturesinfolder = findPictures(path);
+      pictures = StringListAppend(pictures, picturesinfolder);
+      StringListFree(picturesinfolder);
     }
     free(path);
   }
@@ -179,9 +180,68 @@ char ** StringListAdd(char ** list, const char * string)
 }
 
 
+/// Append a string list to another one.
+///
+/// @param body The string list at the end of which the other string
+///             list is appended.
+/// @param tail The string list to append to the other one.
+/// @return The modified string list. Strings from @b tail string list are
+///         duplicated.
+
+char ** StringListAppend(char ** body, char ** tail)
+{
+  if (!tail)
+  {
+    return body;
+  }
+
+  if (!body)
+  {
+    return StringListDup(tail);
+  }
+
+  int nbodyitems = StringListCount(body);
+  int ntailitems = StringListCount(tail);
+  int nnewbodyitems = nbodyitems + ntailitems;
+  char ** newbody = realloc(body, sizeof(char*)*(nnewbodyitems+1));
+  newbody[nnewbodyitems] = NULL;
+  for ( int i = 0 ; i < ntailitems ; i++ )
+  {
+    newbody[nbodyitems+i] = strdup(tail[i]);
+  }
+
+  return newbody;
+}
+
+
+/// Duplicate a string list.
+///
+/// @param list The string list to duplicate.
+/// @return A new string list identical to the @b list string list. All strings
+///         in @b list are duplicated as well.
+
+char ** StringListDup(char ** list)
+{
+  if (!list)
+  {
+    return NULL;
+  }
+
+  char ** newlist = NULL;
+  int nitems = StringListCount(list);
+  for ( int i = 0 ; i < nitems ; i++ )
+  {
+    newlist = StringListAdd ( newlist, strdup(list[i]) );
+  }
+
+  return newlist;
+}
+
+
 /// Append a string to another one.
 ///
-/// @param body The string at the end of which the other string is appended.
+/// @param body The string at the end of which the other string is
+///             appended.
 /// @param tail The string to append to the other one.
 /// @return The modified string.
 
