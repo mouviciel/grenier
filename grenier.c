@@ -27,29 +27,31 @@ bool isFolder (const char * pathname)
 }
 
 
-/// Find picture files in a folder.
+/// Iterate over pictures in a folder and run a function on each picture found.
 ///
 /// @param foldername The name of the folder where to find pictures.
-/// @return A list of file names that are pictures.
+/// @param function The name of the function to run.
+/// @param context A pointer to some context needed by @b function.
 
-char ** findPictures (const char * foldername)
+void foreachPicture (
+    const char * foldername,
+    void ( * function ) ( void *, void * ),
+    void * context )
 {
   if ( isPicture (foldername) )
   {
-    char ** pictures = malloc(2*sizeof(char *));
-    pictures[0] = strdup(foldername);
-    pictures[1] = NULL;
-    return pictures;
+    char * path = strdup(foldername);
+    function(path,context);
+    free(path);
+    return;
   }
 
   DIR * folder = opendir(foldername);
   if ( !folder )
   {
-    return NULL;
+    return;
   }
   
-  char ** pictures = NULL;
-
   struct dirent * entry;
   while ( entry = readdir(folder) )
   {
@@ -61,20 +63,18 @@ char ** findPictures (const char * foldername)
     path = StringAppend(path,entry->d_name);
     if ( isPicture( path ) )
     {
-      pictures = StringListAdd ( pictures, path );
+      function(path,context);
     }
     if ( isFolder( path ) )
     {
-      char ** picturesinfolder = findPictures(path);
-      pictures = StringListAppend(pictures, picturesinfolder);
-      StringListFree(picturesinfolder);
+      foreachPicture(path, function, context);
     }
     free(path);
   }
 
   closedir(folder);
 
-  return pictures;
+  return;
 }
 
 
@@ -103,138 +103,6 @@ bool MimeTypeMatches ( const char * filename, const char * expectedmime )
   magic_close (query);
 
   return result;
-}
-
-
-/// Free memory held by a list of strings.
-///
-/// @param list The list of strings to be freed
-
-void StringListFree (char ** list)
-{
-  if ( !list ) return;
-
-  for ( int i=0 ; list[i] ; i++ )
-  {
-    free(list[i]);
-    list[i] = NULL;
-  }
-  
-  free(list);
-}
-
-
-/// Count the number of strings in a string list.
-///
-/// @param list The list to count.
-/// @return The number of strings in the list. If the list is _NULL_, the count
-///         is 0;
-
-int StringListCount(char ** list)
-{
-  int count = 0;
-
-  if (!list)
-  {
-    return count;
-  }
-
-  while (list[count])
-  {
-    count++;
-  }
-
-  return count;
-}
-
-
-/// Add a string to a string list.
-///
-/// @param list The string list to which the string is added.
-/// @param string The string to add to the string list.
-/// @return The modified string list.
-
-char ** StringListAdd(char ** list, const char * string)
-{
-  if (!string)
-  {
-    return list;
-  }
-
-  char **newlist;
-  int nitems;
-  if (list)
-  {
-    nitems = StringListCount(list)+1;
-    newlist = realloc(list, sizeof(char*)*(nitems+1));
-  }
-  else
-  {
-    nitems = 1;
-    newlist = malloc(sizeof(char*)*(nitems+1));
-  }
-  newlist[nitems-1] = strdup(string);
-  newlist[nitems] = NULL;
-
-  return newlist;
-}
-
-
-/// Append a string list to another one.
-///
-/// @param body The string list at the end of which the other string
-///             list is appended.
-/// @param tail The string list to append to the other one.
-/// @return The modified string list. Strings from @b tail string list are
-///         duplicated.
-
-char ** StringListAppend(char ** body, char ** tail)
-{
-  if (!tail)
-  {
-    return body;
-  }
-
-  if (!body)
-  {
-    return StringListDup(tail);
-  }
-
-  int nbodyitems = StringListCount(body);
-  int ntailitems = StringListCount(tail);
-  int nnewbodyitems = nbodyitems + ntailitems;
-  char ** newbody = realloc(body, sizeof(char*)*(nnewbodyitems+1));
-  newbody[nnewbodyitems] = NULL;
-  for ( int i = 0 ; i < ntailitems ; i++ )
-  {
-    newbody[nbodyitems+i] = strdup(tail[i]);
-  }
-
-  return newbody;
-}
-
-
-/// Duplicate a string list.
-///
-/// @param list The string list to duplicate.
-/// @return A new string list identical to the @b list string list. All strings
-///         in @b list are duplicated as well.
-
-char ** StringListDup(char ** list)
-{
-  if (!list)
-  {
-    return NULL;
-  }
-
-  char ** newlist = NULL;
-  int nitems = StringListCount(list);
-  for ( int i = 0 ; i < nitems ; i++ )
-  {
-    newlist = StringListAdd ( newlist, strdup(list[i]) );
-  }
-
-  return newlist;
 }
 
 

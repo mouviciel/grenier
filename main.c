@@ -2,6 +2,17 @@
 #include <stdio.h>
 
 
+/// Print a string to standard output.
+///
+/// @param string The string to print.
+/// @param format The format to use for printing.
+
+void StringPrint(void * string, void * format)
+{
+  printf(format, string);
+}
+
+
 /// Entry point of the application.
 ///
 /// @param argc The number of command line arguments.
@@ -15,12 +26,7 @@ int main (int argc, char * argv[])
   /// contents and prints directory entries that are pictures.
   for (int i=1 ; argv[i] ; i++ )
   {
-    char ** pictures = findPictures(argv[i]);
-    for ( int j=0 ; pictures && pictures[j] ; j++ )
-    {
-      printf ("%s\n", pictures[j]);
-    }
-    StringListFree(pictures);
+    foreachPicture(argv[i], StringPrint, "%s\n");
   }
 
   return 0;
