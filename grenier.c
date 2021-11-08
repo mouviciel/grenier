@@ -53,7 +53,7 @@ void foreachPicture (
   }
   
   struct dirent * entry;
-  while ( entry = readdir(folder) )
+  while ( ( entry = readdir(folder) ) )
   {
     if ( !strcmp(entry->d_name, "." ) ) continue;
     if ( !strcmp(entry->d_name, ".." ) ) continue;

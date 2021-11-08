@@ -1,0 +1,3 @@
+
+
+char * exiftool ( char * argv[] );
