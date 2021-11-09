@@ -55,7 +55,7 @@ int main (int argc, char * argv[])
   }
 
   { // DEBUGJBO
-    ExifToolInit();
+    ExifToolLaunch();
     sleep(60);
   }
 

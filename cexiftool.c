@@ -40,48 +40,40 @@ char * exiftool ( char * argv[] )
 }
 
 
-int ExifToolInit ( void )
+void ExifToolLaunch ( void )
 {
-  pid_t exiftoolpid = fork();
+  pid_t pid = fork();
 
-  if ( exiftoolpid == -1 )
+  if ( pid == 0 )
   {
-    // fork() failed
-    fprintf(stderr, "DEBUGJBO: fork() failed: %s\n", strerror(errno));
-    return -1;
-  }
-  else if ( exiftoolpid == 0 )
-  {
-    // Child process: launch exiftool
-    printf("DEBUGJBO: Child here: spawning ExifTool\n");
-    char * argv[] = { "-stay_open", "true", "-@", "-", NULL };
-    char * envp[] = { NULL };
-    execve("exiftool", argv, envp);
-    // execve returns only if it fails
-    fprintf(stderr, "DEBUGJBO: execve() failed: %s\n", strerror(errno));
+    // Child process: launch ExifTool
+    printf("DEBUGJBO: Child here: launching ExifTool\n");
+    execlp("exiftool", "-stay_open", "true", "-@", "-", NULL);
+    // execlp returns only if it fails
     exit(EXIT_FAILURE);
   }
   else
   {
-    // Parent process: launch watchdog
-    printf("DEBUGJBO: Parent here: launching Watchdog\n");
-    pid_t grenierpid = getpid();
-    pid_t watchdogpid = fork();
-    if ( watchdogpid == 0 )
+    // Parent process: launch Watchdog
+    printf("DEBUGJBO: Grenier here: launching Watchdog\n");
+    pid_t ppid = getpid();
+    if ( fork() == 0 )
     {
-      // Watchdog process: kill ExifTool process as soon as Grenier process
-      // vanishes
+      // Watchdog process: kill ExifTool as soon as Grenier vanishes
       printf("DEBUGJBO: Watchdog here: monitoring Grenier\n");
+      extern char * __progname;
+      __progname = "WatchDog4Grenier";
       for (;;)
       {
         sleep(1);
-        if ( getppid() != grenierpid )
+        if ( getppid() != ppid )
         {
-          kill ( exiftoolpid, SIGINT );
+          kill ( pid, SIGINT );
           printf("DEBUGJBO: Watchdog here: Grenier vanished, killing ExifTool\n");
           exit(0);
         }
       }
     }
+    printf("DEBUGJBO: Grenier here: going on\n");
   }
 }

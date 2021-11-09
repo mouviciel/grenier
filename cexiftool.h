@@ -2,4 +2,4 @@
 
 char * exiftool ( char * argv[] );
 
-int ExifToolInit ( void );
+void ExifToolLaunch ( void );
