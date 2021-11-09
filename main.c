@@ -1,10 +1,10 @@
 #include "grenier.h"
 #include "cexiftool.h"
 #include <stdio.h>
-
 #include <magic.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 /// Print a string to standard output.
@@ -52,6 +52,11 @@ int main (int argc, char * argv[])
   for (int i=1 ; argv[i] ; i++ )
   {
     foreachPicture(argv[i], printPictureInformation, NULL);
+  }
+
+  { // DEBUGJBO
+    ExifToolInit();
+    sleep(60);
   }
 
   return 0;
