@@ -32,9 +32,13 @@ void printPictureInformation(void * picture, void * notused)
 
   char *argv[] = { "-p", "'$MimeType'", picture, NULL };
   char * mimeexif = exiftool( argv );
-  printf("- (%s, %s) %s\n", mimemagic, mimeexif, picture);
+
+  char * mimeprocess = ExifToolGet(picture, "$MimeType, $ImageSize");
+
+  printf("- (%s, %s, %s) %s\n", mimemagic, mimeexif, mimeprocess, picture);
   free(mimemagic);
   free(mimeexif);
+  free(mimeprocess);
 }
 
 
@@ -46,17 +50,14 @@ void printPictureInformation(void * picture, void * notused)
 /// @return The execution status of the application. 0 means _success_.
 int main (int argc, char * argv[])
 {
+  ExifToolLaunch();
+
   /// The application scans arguments and prints them only if the file is
   /// a picture. If an argument is a directory, the application scans its
   /// contents and prints directory entries that are pictures.
   for (int i=1 ; argv[i] ; i++ )
   {
     foreachPicture(argv[i], printPictureInformation, NULL);
-  }
-
-  { // DEBUGJBO
-    ExifToolLaunch();
-    sleep(60);
   }
 
   return 0;
