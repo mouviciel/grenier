@@ -1,5 +1,4 @@
 #include "grenier.h"
-#include "cexiftool.h"
 #include <stdio.h>
 #include <magic.h>
 #include <string.h>
@@ -25,20 +24,14 @@ void StringPrint(void * string, void * format)
 
 void printPictureInformation(void * picture, void * notused)
 {
-  magic_t query = magic_open (MAGIC_MIME_TYPE);
-  magic_load (query, NULL);
-  char * mimemagic = strdup (magic_file (query, picture));
-  magic_close (query);
+  char * mime = MimeTypeGet ( picture );
+  char * tags[] = { "MimeType", "ImageWidth", "ImageHeight", NULL };
+  char ** exif = ExifGet ( picture, tags );
 
-  char *argv[] = { "-p", "'$MimeType'", picture, NULL };
-  char * mimeexif = exiftool( argv );
+  printf("- (%s, :%s:%s:%s:) %s\n", mime, exif[0], exif[1], exif[2], picture);
 
-  char * mimeprocess = ExifToolGet(picture, "$MimeType, $ImageSize");
-
-  printf("- (%s, %s, %s) %s\n", mimemagic, mimeexif, mimeprocess, picture);
-  free(mimemagic);
-  free(mimeexif);
-  free(mimeprocess);
+  StringListFree(exif);
+  free(mime);
 }
 
 
@@ -50,8 +43,6 @@ void printPictureInformation(void * picture, void * notused)
 /// @return The execution status of the application. 0 means _success_.
 int main (int argc, char * argv[])
 {
-  ExifToolLaunch();
-
   /// The application scans arguments and prints them only if the file is
   /// a picture. If an argument is a directory, the application scans its
   /// contents and prints directory entries that are pictures.
@@ -62,3 +53,5 @@ int main (int argc, char * argv[])
 
   return 0;
 }
+
+// vim: set tw=79 ts=2 sw=2 sts=2 et ai si syn=c fo+=ro dip+=iwhite ff=unix:

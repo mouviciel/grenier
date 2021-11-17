@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 project(Grenier)
 
-add_executable(Grenier grenier.c cexiftool.c main.c)
+add_executable(Grenier grenier.c main.c)
 set_property(TARGET Grenier PROPERTY C_STANDARD 99)
 
 include(FindPackageHandleStandardArgs)
