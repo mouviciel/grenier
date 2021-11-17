@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
 
 
 /// Print a string to standard output.
@@ -27,9 +28,17 @@ void printPictureInformation(void * picture, void * notused)
   char * mime = MimeTypeGet ( picture );
   char * tags[] = { "MimeType", "ImageWidth", "ImageHeight", NULL };
   char ** exif = ExifGet ( picture, tags );
+  off_t size = FileSizeGet ( picture );
+  char * md5hash = FileMd5Get ( picture );
 
-  printf("- (%s, :%s:%s:%s:) %s\n", mime, exif[0], exif[1], exif[2], picture);
+  printf("- (%s, :%s:%s:%s:, %zd, %s) %s\n",
+      mime,
+      exif[0], exif[1], exif[2],
+      (intmax_t)size,
+      md5hash,
+      picture);
 
+  free(md5hash);
   StringListFree(exif);
   free(mime);
 }

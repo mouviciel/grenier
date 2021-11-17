@@ -9,6 +9,8 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <openssl/md5.h>
 
 
 ///
@@ -260,8 +262,8 @@ char * ExifToolQuerySubmit ( const char * filename, const char * query )
 
 
 ///
-/// @name File types
-///    These functions check file types based on MIME types.
+/// @name File information
+///    These functions retrieve information on files.
 /// @{
 ///
 
@@ -315,7 +317,7 @@ bool MimeTypeMatches ( const char * filename, const char * expectedmime )
 
 /// Get MIME type of a file
 ///
-/// @param filename The file name to check.
+/// @param filename The file name to query.
 /// @return A new string containing the file's MIME type, or _NULL_ if an error
 ///         arises.
 
@@ -334,6 +336,78 @@ char * MimeTypeGet ( const char * filename )
   magic_close (query);
 
   return mime;
+}
+
+
+/// Get file size.
+///
+/// @param filename The file name to query.
+/// @return The file size in bytes.
+
+off_t FileSizeGet ( const char * filename )
+{
+  if ( !filename )
+  {
+    fprintf(stderr, "Error can't get file size of NULL\n");
+    exit(EXIT_FAILURE);
+  }
+
+  struct stat buf;
+
+  if ( stat(filename, &buf) == -1 )
+  {
+    fprintf(stderr, "Error while retrieving information about file \"%s\": %s\n",
+        filename, strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  return buf.st_size;
+}
+
+
+/// Get file MD5 hash.
+///
+/// @param filename The file name to query.
+/// @return The MD5 hash expressed in hexadecimal and stored in a string.
+
+char * FileMd5Get ( const char * filename )
+{
+  if ( !filename )
+  {
+    return NULL;
+  }
+
+  FILE * f = fopen(filename, "rb");
+  if ( !f )
+  {
+    fprintf(stderr, "Error while opening file \"%s\": %s\n", filename, strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  const int bufferSize = 1024;
+  unsigned char buffer[bufferSize];
+  unsigned char result[MD5_DIGEST_LENGTH];
+  MD5_CTX context;
+  int nread;
+
+  MD5_Init (&context);
+  while ((nread = fread (buffer, 1, bufferSize, f)) != 0)
+  {
+    MD5_Update (&context, buffer, nread);
+  }
+  MD5_Final (result, &context);
+
+  fclose(f);
+
+  char * md5hex = NULL;
+  for ( int i = 0; i < MD5_DIGEST_LENGTH; i++)
+  {
+    char hex[3];
+    snprintf(hex, sizeof(hex), "%02x", result[i]);
+    md5hex = StringAppend ( md5hex, hex );
+  }
+
+  return md5hex;
 }
 
 

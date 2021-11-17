@@ -1,10 +1,13 @@
 #include <stdbool.h>
+#include <sys/types.h>
 
 
 bool isPicture ( const char * filename );
 bool isFolder ( const char * pathname );
 bool MimeTypeMatches ( const char * filename, const char * expectedmime );
 char * MimeTypeGet ( const char * filename );
+off_t FileSizeGet ( const char * filename );
+char * FileMd5Get ( const char * filename );
 
 void foreachPicture ( const char * foldername, void (*function)(void*,void*), void *context );
 char ** ExifGet ( const char * filename, char ** tags );
