@@ -618,12 +618,12 @@ int StringListCount ( char ** list )
 {
   int count = 0;
 
-  if (!list)
+  if ( !list )
   {
     return count;
   }
 
-  while (list[count])
+  while ( list[count] )
   {
     count++;
   }
@@ -640,14 +640,14 @@ int StringListCount ( char ** list )
 
 char ** StringListAdd ( char ** list, const char * string )
 {
-  if (!string)
+  if ( !string )
   {
     return list;
   }
 
   char **newlist;
   int nitems;
-  if (list)
+  if ( list )
   {
     nitems = StringListCount(list)+1;
     newlist = realloc(list, sizeof(char*)*(nitems+1));
@@ -658,6 +658,63 @@ char ** StringListAdd ( char ** list, const char * string )
     newlist = malloc(sizeof(char*)*(nitems+1));
   }
   newlist[nitems-1] = strdup(string);
+  newlist[nitems] = NULL;
+
+  return newlist;
+}
+
+
+/// Count the number of pictures in a picture list
+///
+/// @param list The list to count.
+/// @return The number of pictures in the list. If the list is _NULL_, the
+///         count is 0;
+
+int PictureListCount ( struct Picture ** list )
+{
+  int count = 0;
+
+  if ( !list )
+  {
+    return count;
+  }
+
+  while ( list[count] )
+  {
+    count++;
+  }
+
+  return count;
+}
+
+
+/// Add a picture to a picture list
+///
+/// @param list The picture list to which the picture is added.
+/// @param picture The picture to add to the picture list.
+/// @return The modified picture list.
+
+struct Picture ** PictureListAdd ( struct Picture ** list, struct Picture * picture )
+{
+  if ( !picture )
+  {
+    return list;
+  }
+
+  struct Picture ** newlist;
+  int nitems;
+  if ( list )
+  {
+    nitems = PictureListCount ( list ) + 1;
+    newlist = realloc(list, sizeof(struct Picture *)*(nitems+1));
+  }
+  else
+  {
+    nitems = 1;
+    newlist = malloc(sizeof(struct Picture *)*(nitems+1));
+  }
+  newlist[nitems-1] = malloc(sizeof(struct Picture));
+  memcpy(newlist[nitems-1], picture, sizeof(struct Picture));
   newlist[nitems] = NULL;
 
   return newlist;

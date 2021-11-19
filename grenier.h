@@ -11,6 +11,12 @@ char * FileMd5Get ( const char * filename );
 
 void foreachPicture ( const char * foldername, void (*function)(void*,void*), void *context );
 char ** ExifGet ( const char * filename, char ** tags );
+struct Picture
+{
+  char * filename;
+};
+int PictureListCount ( struct Picture ** list );
+struct Picture ** PictureListAdd ( struct Picture ** list, struct Picture * picture );
 
 char * StringAppend ( char * body, const char * tail );
 char ** StringSplit ( const char * string, const char separator );
