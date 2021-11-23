@@ -2,6 +2,22 @@
 #include <sys/types.h>
 
 
+/// Picture data structure
+///
+/// This data structure gathers information about a file containing a
+/// picture.
+
+struct Picture
+{
+  char * filename;
+  char * mimetype;
+  off_t filesize;
+  char * md5hash;
+  int width;
+  int height;
+};
+
+
 bool isPicture ( const char * filename );
 bool isFolder ( const char * pathname );
 bool MimeTypeMatches ( const char * filename, const char * expectedmime );
@@ -11,10 +27,6 @@ char * FileMd5Get ( const char * filename );
 
 void foreachPicture ( const char * foldername, void (*function)(void*,void*), void *context );
 char ** ExifGet ( const char * filename, char ** tags );
-struct Picture
-{
-  char * filename;
-};
 int PictureListCount ( struct Picture ** list );
 struct Picture ** PictureListAdd ( struct Picture ** list, struct Picture * picture );
 

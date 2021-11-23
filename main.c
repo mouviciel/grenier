@@ -34,6 +34,12 @@ void printPictureInformation(void * picture, void * context)
       picture);
 
   asset.filename = strdup(picture);
+  asset.mimetype = strdup(mime);
+  asset.filesize = size;
+  asset.md5hash = strdup(md5hash);
+  asset.width = atoi(exif[1]);
+  asset.height = atoi(exif[2]);
+
   album = PictureListAdd ( album, &asset );
 
   *((struct Picture ***)context) = album;
@@ -64,7 +70,13 @@ int main (int argc, char * argv[])
 
   for ( int i=0 ; i<PictureListCount(album) ; i++ )
   {
-    printf("%s\n",album[i]->filename);
+    printf("%s, %zd, %dx%d, %s --- %s\n",
+        album[i]->mimetype,
+        (intmax_t)album[i]->filesize,
+        album[i]->width,
+        album[i]->height,
+        album[i]->md5hash,
+        album[i]->filename);
   }
 
   return 0;
