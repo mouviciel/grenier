@@ -358,7 +358,7 @@ off_t FileSizeGet ( const char * filename )
   {
     fprintf(stderr, "Error while retrieving information about file \"%s\": %s\n",
         filename, strerror(errno));
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   return buf.st_size;
@@ -480,7 +480,7 @@ void foreachPicture (
 /// @param tags A list of tag names to fetch from the picture.
 /// @return A list of tag values, in the same order as the list of tag names.
 
-char ** ExifGet ( const char * filename, char ** tags )
+char ** ExifGet ( const char * filename, const char ** tags )
 {
   if ( !filename || !tags )
   {
@@ -538,14 +538,14 @@ char * StringAppend(char * body, const char * tail)
   size_t bodylen = strlen(body);
   size_t taillen = strlen(tail);
   size_t newlen = bodylen + taillen;
-  char * newbody = realloc(body, sizeof(char)*(newlen+1));
-  newbody[newlen] = '\0';
+  body = realloc(body, sizeof(char)*(newlen+1));
+  body[newlen] = '\0';
   for ( size_t i = 0 ; i < taillen ; i++ )
   {
-    newbody[i+bodylen] = tail[i];
+    body[i+bodylen] = tail[i];
   }
 
-  return newbody;
+  return body;
 }
 
 
@@ -645,30 +645,71 @@ char ** StringListAdd ( char ** list, const char * string )
     return list;
   }
 
-  char **newlist;
-  int nitems;
-  if ( list )
-  {
-    nitems = StringListCount(list)+1;
-    newlist = realloc(list, sizeof(char*)*(nitems+1));
-  }
-  else
-  {
-    nitems = 1;
-    newlist = malloc(sizeof(char*)*(nitems+1));
-  }
-  newlist[nitems-1] = strdup(string);
-  newlist[nitems] = NULL;
+  int nitems = StringListCount(list)+1;
+  list = realloc(list, sizeof(char*)*(nitems+1));
+  list[nitems] = NULL;
 
-  return newlist;
+  list[nitems-1] = strdup(string);
+
+  return list;
 }
 
 
-/// Count the number of pictures in a picture list
 ///
-/// @param list The list to count.
-/// @return The number of pictures in the list. If the list is _NULL_, the
-///         count is 0;
+/// @}
+///
+
+
+struct Picture * PictureInformation ( const char * pathname )
+{
+  if ( !pathname )
+  {
+    return NULL;
+  }
+
+  struct Picture * picture = calloc(1, sizeof(struct Picture));
+
+  picture->filesize = FileSizeGet ( pathname );
+  if ( picture->filesize < 0 )
+  {
+    PictureFree(picture);
+    return NULL;
+  }
+
+  picture->pathname = strdup(pathname);
+
+  picture->mimetype = MimeTypeGet ( pathname );
+  const char * expectedmime = "image/";
+  if ( strncmp (picture->mimetype, expectedmime, strlen(expectedmime)) != 0 )
+  {
+    PictureFree(picture);
+    return NULL;
+  }
+
+  picture->md5hash = FileMd5Get ( pathname );
+
+  const char * tags[] = { "ImageWidth", "ImageHeight", NULL };
+  char **exif = ExifGet ( pathname, tags );
+  picture->width = atoi(exif[0]);
+  picture->height = atoi(exif[1]);
+  StringListFree ( exif );
+
+  return picture;
+}
+
+
+void PictureFree ( struct Picture * picture )
+{
+  if ( picture )
+  {
+    free(picture->pathname);
+    free(picture->mimetype);
+    free(picture->md5hash);
+  }
+
+  free(picture);
+}
+
 
 int PictureListCount ( struct Picture ** list )
 {
@@ -688,42 +729,27 @@ int PictureListCount ( struct Picture ** list )
 }
 
 
-/// Add a picture to a picture list
-///
-/// @param list The picture list to which the picture is added.
-/// @param picture The picture to add to the picture list.
-/// @return The modified picture list.
-
-struct Picture ** PictureListAdd ( struct Picture ** list, struct Picture * picture )
+struct Picture ** PictureListAdd ( struct Picture ** list, const struct Picture * picture )
 {
   if ( !picture )
   {
     return list;
   }
 
-  struct Picture ** newlist;
-  int nitems;
-  if ( list )
-  {
-    nitems = PictureListCount ( list ) + 1;
-    newlist = realloc(list, sizeof(struct Picture *)*(nitems+1));
-  }
-  else
-  {
-    nitems = 1;
-    newlist = malloc(sizeof(struct Picture *)*(nitems+1));
-  }
-  newlist[nitems-1] = malloc(sizeof(struct Picture));
-  memcpy(newlist[nitems-1], picture, sizeof(struct Picture));
-  newlist[nitems] = NULL;
+  int nitems = PictureListCount ( list ) + 1;
+  list = realloc(list, sizeof(struct Picture *)*(nitems+1));
+  list[nitems] = NULL;
 
-  return newlist;
+  list[nitems-1] = calloc(1, sizeof(struct Picture));
+  list[nitems-1]->pathname = strdup(picture->pathname);
+  list[nitems-1]->mimetype = strdup(picture->mimetype);
+  list[nitems-1]->filesize = picture->filesize;
+  list[nitems-1]->md5hash = strdup(picture->md5hash);
+  list[nitems-1]->width = picture->width;
+  list[nitems-1]->height = picture->height;
+
+  return list;
 }
-
-
-///
-/// @}
-///
 
 
 // vim: set tw=79 ts=2 sw=2 sts=2 et ai si syn=c fo+=ro dip+=iwhite ff=unix:

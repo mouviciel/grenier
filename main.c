@@ -16,37 +16,22 @@
 void printPictureInformation(void * picture, void * context)
 {
   struct Picture ** album = *((struct Picture ***)context);
-  struct Picture asset;
 
-  int count = PictureListCount ( album );
+  struct Picture * media = PictureInformation ( picture );
 
-  char * mime = MimeTypeGet ( picture );
-  char * tags[] = { "MimeType", "ImageWidth", "ImageHeight", NULL };
-  char ** exif = ExifGet ( picture, tags );
-  off_t size = FileSizeGet ( picture );
-  char * md5hash = FileMd5Get ( picture );
+  printf("- (%s, :%d:%d:, %zd, %s) %s\n",
+      media->mimetype,
+      media->width,
+      media->height,
+      media->filesize,
+      media->md5hash,
+      media->pathname);
 
-  printf("- (%s, :%s:%s:%s:, %zd, %s) %s\n",
-      mime,
-      exif[0], exif[1], exif[2],
-      (intmax_t)size,
-      md5hash,
-      picture);
+  album = PictureListAdd ( album, media );
 
-  asset.filename = strdup(picture);
-  asset.mimetype = strdup(mime);
-  asset.filesize = size;
-  asset.md5hash = strdup(md5hash);
-  asset.width = atoi(exif[1]);
-  asset.height = atoi(exif[2]);
-
-  album = PictureListAdd ( album, &asset );
+  PictureFree ( media );
 
   *((struct Picture ***)context) = album;
-
-  free(md5hash);
-  StringListFree(exif);
-  free(mime);
 }
 
 
@@ -76,7 +61,7 @@ int main (int argc, char * argv[])
         album[i]->width,
         album[i]->height,
         album[i]->md5hash,
-        album[i]->filename);
+        album[i]->pathname);
   }
 
   return 0;
