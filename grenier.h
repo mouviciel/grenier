@@ -64,6 +64,14 @@ int PictureListCount ( struct Picture ** list );
 struct Picture ** PictureListAdd ( struct Picture ** list, const struct Picture * picture );
 
 
+/// Free memory held by a list of pictures.
+///
+/// @param list A pointer to a dynamically allocated array of pointers to
+///             dynamically allocated Picture data structures.
+
+void PictureListFree ( struct Picture ** list );
+
+
 /// @}
 
 

@@ -156,6 +156,8 @@ char * ExifToolQueryAppend ( char * query, const char * tag )
   query = StringAppend ( query, "-p\n$" );
   query = StringAppend ( query, tag );
   query = StringAppend ( query, "\n" );
+
+  return query;
 }
 
 
@@ -251,6 +253,7 @@ char * ExifToolQuerySubmit ( const char * filename, const char * query )
       break;
     }
   }
+  free(rbuf);
 
   return result;
 }
@@ -579,6 +582,7 @@ char ** StringSplit ( const char * string, const char separator )
     }
     char * clone = strndup(item, endofitem - item);
     list = StringListAdd ( list, clone );
+    free(clone);
     item = endofitem + 1;
     if ( !(*endofitem) )
     {
@@ -689,7 +693,7 @@ struct Picture * PictureInformation ( const char * pathname )
   picture->md5hash = FileMd5Get ( pathname );
 
   const char * tags[] = { "ImageWidth", "ImageHeight", NULL };
-  char **exif = ExifGet ( pathname, tags );
+  char ** exif = ExifGet ( pathname, tags );
   picture->width = atoi(exif[0]);
   picture->height = atoi(exif[1]);
   StringListFree ( exif );
@@ -749,6 +753,22 @@ struct Picture ** PictureListAdd ( struct Picture ** list, const struct Picture 
   list[nitems-1]->height = picture->height;
 
   return list;
+}
+
+
+void PictureListFree ( struct Picture ** list )
+{
+  if ( list )
+  {
+    int count = 0;
+    while ( list[count] )
+    {
+      PictureFree(list[count]);
+      count++;
+    }
+  }
+
+  free(list);
 }
 
 

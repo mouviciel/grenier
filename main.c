@@ -64,6 +64,8 @@ int main (int argc, char * argv[])
         album[i]->pathname);
   }
 
+  PictureListFree ( album );
+
   return 0;
 }
 
