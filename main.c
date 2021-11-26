@@ -9,27 +9,27 @@
 
 /// Print information on picture file.
 ///
-/// @param picture The filename of the picture.
+/// @param pathname The filename of the picture.
 /// @param context The context of printPictureInformation() in the
 ///                foreachPicture() loop.
 
-void printPictureInformation(void * picture, void * context)
+void printPictureInformation(void * pathname, void * context)
 {
   struct Picture ** album = *((struct Picture ***)context);
 
-  struct Picture * media = PictureInformation ( picture );
+  struct Picture * picture = PictureInformation ( pathname );
 
   printf("- (%s, :%d:%d:, %zd, %s) %s\n",
-      media->mimetype,
-      media->width,
-      media->height,
-      media->filesize,
-      media->md5hash,
-      media->pathname);
+      picture->mimetype,
+      picture->width,
+      picture->height,
+      picture->filesize,
+      picture->md5hash,
+      picture->pathname);
 
-  album = PictureListAdd ( album, media );
+  album = PictureListAdd ( album, picture );
 
-  PictureFree ( media );
+  PictureFree ( picture );
 
   *((struct Picture ***)context) = album;
 }
