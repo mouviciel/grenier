@@ -12,6 +12,8 @@ struct obj * obj_new ( const char * description );
 // Public methods of an `obj` instance
 struct obj {
   void ( * release ) ( struct obj * );
+  const char * ( * description ) ( struct obj * );
+  int ( * set_description ) ( struct obj *, const char * );
 };
 
 
