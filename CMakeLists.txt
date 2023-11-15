@@ -8,6 +8,7 @@ set_property(TARGET Grenier PROPERTY C_STANDARD 99)
 
 add_library(Obj obj.c)
 set_property(TARGET Obj PROPERTY C_STANDARD 99)
+target_link_libraries(Grenier Obj)
 
 
 include(FindPackageHandleStandardArgs)
@@ -33,13 +34,13 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 target_link_libraries(Grenier ${OPENSSL_LIBRARIES})
 
 
-# doxygen(1) is used to build source code documentation.
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
-    @ONLY)
-  add_custom_target(Documentation ALL
-    COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
-    COMMENT "Building documentation...")
-endif()
+# # doxygen(1) is used to build source code documentation.
+# find_package(Doxygen)
+# if (DOXYGEN_FOUND)
+#   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in"
+#     "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+#     @ONLY)
+#   add_custom_target(Documentation ALL
+#     COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+#     COMMENT "Building documentation...")
+# endif()

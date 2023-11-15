@@ -3,18 +3,35 @@
 
 
 
+// Constructor (with allocation) of an `obj` instance
+struct obj * obj_create ( void );
+
 // `obj` class
-struct obj;
-
-// Class methods of `obj`
-struct obj * obj_new ( const char * description );
-
-// Public methods of an `obj` instance
-struct obj {
-  void ( * release ) ( struct obj * );
-  const char * ( * description ) ( struct obj * );
-  int ( * set_description ) ( struct obj *, const char * );
+struct obj
+{
+  struct obj_vtable
+  {
+    const char * ( * string )  ( struct obj const * self );
+    void         ( * destroy ) ( struct obj * self );
+  } const * vtable;
 };
+
+// Methods of `obj` class
+
+// Destructor (with deallocation) of an `obj` instance
+static inline void obj_destroy ( struct obj * self )
+{
+  if ( self && self->vtable && self->vtable->destroy )
+    self->vtable->destroy ( self );
+}
+
+// Return a string representation of an `obj` instance
+static inline const char * obj_string ( struct obj const * self )
+{
+  if ( self && self->vtable && self->vtable->string )
+    return self->vtable->string ( self );
+  return NULL;
+}
 
 
 

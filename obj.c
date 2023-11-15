@@ -4,50 +4,35 @@
 
 
 
-// Full (public+private) declaration of `obj` class
-struct obj_full {
-  struct obj public;
-  char * description;
-};
-
-static void obj_release ( struct obj * self )
+// Return a string representation of an `obj` instance
+static const char * static_obj_string ( struct obj const * self )
 {
-  struct obj_full * full = ( struct obj_full * ) self;
-  if ( full->description )
-    free ( full->description );
-  free ( full );
+  return "<obj>";
 }
 
-static const char * obj_description ( struct obj * self )
+// Destructor (with deallocation) of an `obj` instance
+static void static_obj_destroy ( struct obj * self )
 {
-  if ( !self ) return NULL;
-  struct obj_full * full = ( struct obj_full * ) self;
-  return full->description;
-}
-
-static int obj_set_description ( struct obj * self,
-    const char * description )
-{
-  if ( !self ) return -1;
-  struct obj_full * full = ( struct obj_full * ) self;
-  if ( full->description )
-    free ( full->description );
-  full->description = strdup ( description );
-  if ( !full->description ) return -1;
-  return 0;
-}
-
-struct obj * obj_new ( const char * description )
-{
-  struct obj_full * full = malloc ( sizeof ( struct obj_full ) );
-  if ( !full ) return NULL;
-  full->description = NULL;
-  full->public.release = obj_release;
-  full->public.description = obj_description;
-  full->public.set_description = obj_set_description;
-  return &full->public;
+  self->vtable = NULL;
+  free ( self );
 }
 
 
+
+// Constructor (with allocation) of an `obj` instance
+struct obj * obj_create ( void )
+{
+  static struct obj_vtable const vtable =
+  {
+    .string = static_obj_string,
+    .destroy = static_obj_destroy,
+  };
+  struct obj * self = malloc ( sizeof ( struct obj ) );
+  if ( self )
+  {
+    self->vtable = &vtable;
+  }
+  return self;
+}
 
 // vim: set tw=79 ts=2 sw=2 sts=2 et ai si syn=c fo+=ro dip+=iwhite ff=unix:

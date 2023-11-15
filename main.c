@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
+#include "obj.h"
+
 
 /// Print information on picture file.
 ///
@@ -43,6 +45,10 @@ void printPictureInformation(void * pathname, void * context)
 /// @return The execution status of the application. 0 means _success_.
 int main (int argc, char * argv[])
 {
+  struct obj * myobj = obj_create ();
+  printf ( "OBJ: %s\n", obj_string ( myobj ) );
+  obj_destroy ( myobj );
+
   struct Picture ** album = NULL;
 
   /// The application scans arguments and prints them only if the file is
