@@ -6,7 +6,7 @@ add_executable(Grenier grenier.c main.c)
 set_property(TARGET Grenier PROPERTY C_STANDARD 99)
 
 
-add_library(Obj obj.c)
+add_library(Obj Obj.c Number.c)
 set_property(TARGET Obj PROPERTY C_STANDARD 99)
 target_link_libraries(Grenier Obj)
 
