@@ -3,6 +3,10 @@
 
 
 
+#include <stdlib.h> // Contains the definition of NULL, used below
+
+
+
 // BRIEF //////////////////////////////////////////////////////////////////////
 
 
@@ -51,7 +55,7 @@ static inline const char * Obj_string ( Obj self )
 {
    if ( self && self->vtable && self->vtable->string )
       return self->vtable->string ( self );
-   return "<Invalid object>";
+   return NULL;
 }
 
 

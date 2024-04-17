@@ -3,7 +3,8 @@
 
 
 
-#include "Obj.h"
+#include <Obj.h>
+#include <math.h> // Contains the definition of nan(), used below
 
 
 
@@ -49,7 +50,7 @@ static inline double Number_value ( Number self )
 {
    if ( self && self->vtable && self->vtable->value )
       return self->vtable->value ( self );
-   return 0.0;
+   return nan ( "0" );
 }
 
 // Set the value of an instance of 'Number'

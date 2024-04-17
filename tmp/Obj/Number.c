@@ -1,6 +1,7 @@
-#include "Obj.h"
-#include "Number.h"
+#include <Obj.h>
+#include <Number.h>
 #include <stdlib.h>
+#include <math.h>
 
 
 
@@ -29,7 +30,7 @@ static void static_Number_set_value ( Number self, double value )
 
 
 // String representation of an instance of 'Number'
-static const char * static_Number_string ( Obj obj )
+static const char * static_Number_string ( Obj self )
 {
    return "<Number>";
 }
@@ -95,7 +96,7 @@ Number Number_create ( void )
       free ( self );
       return NULL;
    }
-   self->data->value = 0.0;
+   self->data->value = nan ( "0" );
 
    // Instantiate the interface
    static const struct Number_interface vtable =
